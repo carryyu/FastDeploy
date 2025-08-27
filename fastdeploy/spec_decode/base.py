@@ -18,6 +18,8 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import Any
 
+import paddle.distributed as dist
+
 from fastdeploy.config import FDConfig
 from fastdeploy.utils import spec_logger
 
@@ -34,7 +36,9 @@ class Proposer(ABC):
         """
         Init Speculative proposer
         """
+        cfg.parallel_config.tp_group = None
         self.cfg = deepcopy(cfg)
+        cfg.parallel_config.tp_group = dist.get_group(cfg.parallel_config.data_parallel_rank + 100)
         self.parallel_config = self.cfg.parallel_config
         self.model_config = self.cfg.model_config
         self.speculative_config = self.cfg.speculative_config
